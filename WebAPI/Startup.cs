@@ -29,7 +29,7 @@ namespace WebAPI
             });
 
             services.AddDbContext<Context>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("")));
+            options.UseSqlServer(Configuration.GetConnectionString("db_Connection")));
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
