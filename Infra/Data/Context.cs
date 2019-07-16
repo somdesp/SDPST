@@ -17,16 +17,21 @@ namespace Infra.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().ToTable("User");
-            modelBuilder.Entity<Country>().ToTable("Country");
+            modelBuilder.Entity<User>().HasKey(p => p.Id);
+            modelBuilder.Entity<Country>().HasKey(p => p.Id);
+            modelBuilder.Entity<State>().HasKey(p => p.Id);
+            modelBuilder.Entity<City>().HasKey(p => p.Id);
 
-            modelBuilder.Entity<State>().ToTable("State")           
+            modelBuilder.Entity<User>().ToTable("Users");
+            modelBuilder.Entity<Country>().ToTable("Countries");
+
+            modelBuilder.Entity<State>().ToTable("States")           
                     .HasOne(p => p.Country)
                     .WithMany(b => b.States)
                     .HasForeignKey(p => p.CountryId)
                     .HasConstraintName("ForeignKey_Country_States");
 
-            modelBuilder.Entity<City>().ToTable("City")
+            modelBuilder.Entity<City>().ToTable("Cities")
                 .HasOne(p => p.State)
                 .WithMany(b => b.Cities)
                 .HasForeignKey(p => p.StateId)

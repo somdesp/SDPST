@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20190711220309_InitialCatalog")]
-    partial class InitialCatalog
+    [Migration("20190716205325_AtualizacaoBanco")]
+    partial class AtualizacaoBanco
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -34,7 +34,7 @@ namespace Infra.Migrations
 
                     b.HasIndex("StateId");
 
-                    b.ToTable("City");
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("Domain.Entity.Country", b =>
@@ -47,7 +47,7 @@ namespace Infra.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Country");
+                    b.ToTable("Countries");
                 });
 
             modelBuilder.Entity("Domain.Entity.State", b =>
@@ -64,7 +64,7 @@ namespace Infra.Migrations
 
                     b.HasIndex("CountryId");
 
-                    b.ToTable("State");
+                    b.ToTable("States");
                 });
 
             modelBuilder.Entity("Domain.Entity.User", b =>
@@ -75,15 +75,13 @@ namespace Infra.Migrations
 
                     b.Property<string>("Email");
 
-                    b.Property<string>("Login");
-
                     b.Property<string>("Name");
 
                     b.Property<string>("Password");
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Domain.Entity.City", b =>
