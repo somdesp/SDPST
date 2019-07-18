@@ -21,17 +21,19 @@ namespace Services
         private TokenConfigurations _tokenConfigurations;
         public IConfiguration _configuration { get; }
         private IAuthRepository _authRepository;
+        private Encryption encryption = new Encryption();
+
         #endregion
 
         #region Construtor 
-        public AuthService(IOptions<AppSettings> appSettings,
+        public AuthService(AppSettings appSettings,
             IConfiguration configuration,
             TokenConfigurations tokenConfigurations,
             IAuthRepository authRepository)
         {
             _tokenConfigurations = tokenConfigurations;
             _configuration = configuration;
-            _appSettings = appSettings.Value;
+            _appSettings = appSettings;
             _authRepository = authRepository;
         }
         #endregion
@@ -44,20 +46,33 @@ namespace Services
             {
                 try
                 {
-                  var authUsu = _authRepository.AuthUser(user);
+                    //Criptografia da senha com a chave
+                    user.Password = encryption.HashHmac(user.Email + "OPTIMUS@@ECM", user.Password);
 
+                    //verifica no banco
+                    var authUsu = _authRepository.AuthUserAsync(user);
+
+
+                    //Valida se existe usuarios no banco
+                    if (authUsu == null)return null;
+
+                    //Cria as regras do usuario conforme seus acessos
                     ClaimsIdentity identity = new ClaimsIdentity(
-                        new GenericIdentity(user.Name, "Name"),
+                        new GenericIdentity(authUsu.Name, "Login"),
                     new[] {
-                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                        new Claim(JwtRegisteredClaimNames.UniqueName, user.Name),
-                        new Claim(JwtRegisteredClaimNames.Email, user.Email)
-                    });
+                        new Claim(ClaimTypes.Hash, Guid.NewGuid().ToString("N")),
+                        new Claim(ClaimTypes.Name, authUsu.Name),
+                        new Claim(ClaimTypes.Email, authUsu.Email),
+                        new Claim(ClaimTypes.NameIdentifier, authUsu.Id.ToString()),
+                        new Claim(ClaimTypes.Role, "CRIAR_USUARIO"),
+                        new Claim ("Tipo_Tecnico", "Serralheiro")
+                    }); ;
 
-
-                    var keyByteArray = Encoding.ASCII.GetBytes("F3FF60788F2A1A49B292255CE98455C58F8E7CC3770DFF68B97D7F78252D27BB2B74DCC6E63A99E06A39EA99D7C982E0D2D2366776236ED6134A802EC133A8AF");
+                    //Gera a chave conforme o token de retorno das configuraçoes
+                    var keyByteArray = Encoding.ASCII.GetBytes(_appSettings.Secret);
                     var signingKey = new SymmetricSecurityKey(keyByteArray);
 
+                    //Configura o token 
                     DateTime dataCriacao = DateTime.Now;
                     DateTime dataExpiracao = dataCriacao + TimeSpan.FromDays(_tokenConfigurations.Days);
 
@@ -72,6 +87,7 @@ namespace Services
                         Expires = dataExpiracao
                     });
                     var token = handler.WriteToken(securityToken);
+
                     Token valToken = new Token
                     {
                         Authenticated = true,
@@ -80,11 +96,10 @@ namespace Services
                         AccessToken = token,
                         Message = "OK"
                     };
+
                     return valToken;
-
-
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     return null;
                     throw;

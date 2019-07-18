@@ -2,6 +2,7 @@
 using Infra.Data;
 using Infra.Interface;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infra.Repository
@@ -15,9 +16,11 @@ namespace Infra.Repository
             _context = context;
         }
 
-        public async Task<User> AuthUser(User userAuth)
+        public User AuthUserAsync(User userAuth)
         {
-           return userAuth = await _context.Users.SingleOrDefaultAsync(user => user.Name == userAuth.Name && user.Password == userAuth.Password);
+            return  _context.Users.Where(user => user.Email == userAuth.Email.ToLower() && 
+                                user.Password == userAuth.Password).FirstOrDefault();
         }
+
     }
 }

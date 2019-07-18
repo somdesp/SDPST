@@ -1,19 +1,23 @@
-﻿using Infra.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Services;
 using Services.Helpers;
 using Services.Interface;
 
-namespace WebAPI
+namespace Authenticate.Resource
 {
     public class Startup
     {
@@ -27,14 +31,6 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
 
             var signingConfigurations = new SigningConfigurations();
             services.AddSingleton(signingConfigurations);
@@ -77,9 +73,6 @@ namespace WebAPI
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserRepository, UserRepository>();
-
             services.AddDbContext<Context>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("db_Connection")));
 
@@ -95,8 +88,6 @@ namespace WebAPI
             }
 
             app.UseMvc();
-
-
         }
     }
 }

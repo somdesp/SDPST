@@ -1,19 +1,23 @@
 ﻿using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Services;
 using Services.Helpers;
 using Services.Interface;
+using System;
+using System.Text;
 
-namespace WebAPI
+namespace ApiSystemServer
 {
     public class Startup
     {
@@ -27,14 +31,6 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CookiePolicyOptions>(options =>
-            {
-                // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-            });
-
-
 
             var signingConfigurations = new SigningConfigurations();
             services.AddSingleton(signingConfigurations);
@@ -53,33 +49,39 @@ namespace WebAPI
             services.AddSingleton(AppSettings);
 
 
-            //services.AddAuthentication(options =>
-            //{
-            //    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            //}).AddJwtBearer(bearerOptions =>
-            //{
-            //    var keyByteArray = Encoding.ASCII.GetBytes(AppSettings.Secret);
-            //    var signingKey = new SymmetricSecurityKey(keyByteArray);
+            }).AddJwtBearer(bearerOptions =>
+            {
+                var keyByteArray = Encoding.ASCII.GetBytes(AppSettings.Secret);
+                var signingKey = new SymmetricSecurityKey(keyByteArray);
 
-            //    bearerOptions.TokenValidationParameters = new TokenValidationParameters()
-            //    {
-            //        IssuerSigningKey = signingKey,
-            //        ValidAudience = tokenConfigurations.Audience,
-            //        ValidIssuer = tokenConfigurations.Issuer,
-            //        ValidateIssuerSigningKey = true,
-            //        ValidateLifetime = true,
-            //        ClockSkew = TimeSpan.FromMinutes(0)
+                bearerOptions.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    IssuerSigningKey = signingKey,
+                    ValidAudience = tokenConfigurations.Audience,
+                    ValidIssuer = tokenConfigurations.Issuer,
+                    ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.FromMinutes(0)
 
 
-            //    };
-            //});
+                };
+            });
 
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IAuthRepository, AuthRepository>();
+            // Ativa o uso do token como forma de autorizar o acesso
+            // a recursos deste projeto
+            services.AddAuthorization(auth =>
+            {
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser().Build());
+            });
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
-
             services.AddDbContext<Context>(options => options.UseSqlServer(
                 Configuration.GetConnectionString("db_Connection")));
 
@@ -95,8 +97,6 @@ namespace WebAPI
             }
 
             app.UseMvc();
-
-
         }
     }
 }

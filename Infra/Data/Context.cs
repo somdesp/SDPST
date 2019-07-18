@@ -5,15 +5,9 @@ namespace Infra.Data
 {
     public class Context : DbContext
     {
-        public Context(DbContextOptions<Context> options) : base(options)
+        public Context(DbContextOptions options) : base(options)
         {
-
         }
-
-        public DbSet<User> Users { get; set; }
-        public DbSet<Country> Countrys { get; set; }
-        public DbSet<State> States { get; set; }
-        public DbSet<City> Cities { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,7 +30,11 @@ namespace Infra.Data
                 .WithMany(b => b.Cities)
                 .HasForeignKey(p => p.StateId)
                 .HasConstraintName("ForeignKey_States_City");
-
         }
+
+        public DbSet<User> Users { get; set; }
+        public DbSet<Country> Countrys { get; set; }
+        public DbSet<State> States { get; set; }
+        public DbSet<City> Cities { get; set; }
     }
 }
