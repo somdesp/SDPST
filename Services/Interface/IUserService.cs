@@ -1,9 +1,9 @@
-﻿using Domain.Entity;
+﻿using System.Threading.Tasks;
 
 namespace Services.Interface
 {
     public interface IUserService
     {
-        dynamic InserirUsuario(User user);
+        Task<bool> CreateUserAsync(object model, IValidationDictionary validation);
     }
 }

@@ -16,6 +16,8 @@ using Services.Helpers;
 using Services.Interface;
 using System;
 using System.Text;
+using AutoMapper;
+
 
 namespace ApiSystemServer
 {
@@ -29,8 +31,10 @@ namespace ApiSystemServer
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
+        [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
+       
 
             var signingConfigurations = new SigningConfigurations();
             services.AddSingleton(signingConfigurations);
@@ -82,9 +86,12 @@ namespace ApiSystemServer
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
-            services.AddDbContext<Context>(options => options.UseSqlServer(
+            services.AddDbContext<Context>(options => options.UseMySql(
                 Configuration.GetConnectionString("db_Connection")));
 
+
+            services.AddCors();
+            services.AddAutoMapper();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 

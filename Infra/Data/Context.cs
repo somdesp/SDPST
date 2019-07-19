@@ -11,7 +11,31 @@ namespace Infra.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasKey(p => p.Id);
+            modelBuilder.Entity<User>(u =>
+            {
+                u.Property(p => p.Id)
+                    .ValueGeneratedOnAdd().IsRequired();
+
+                u.Property(p => p.Email)
+                    .IsRequired();
+
+                u.Property(p => p.Name)
+                    .IsRequired();
+
+                u.Property(p => p.Password)
+                     .IsRequired();
+
+                u.HasKey(p => p.Id);
+
+                u.ToTable("Users");
+            });
+
+            modelBuilder.Entity<User>().Property(p => p.Id).IsRequired();
+            modelBuilder.Entity<User>().Property(p => p.Id).IsRequired();
+            modelBuilder.Entity<User>().Property(p => p.Id).IsRequired();
+            modelBuilder.Entity<User>().Property(p => p.Id).IsRequired();
+
+
             modelBuilder.Entity<Country>().HasKey(p => p.Id);
             modelBuilder.Entity<State>().HasKey(p => p.Id);
             modelBuilder.Entity<City>().HasKey(p => p.Id);
@@ -19,7 +43,7 @@ namespace Infra.Data
             modelBuilder.Entity<User>().ToTable("Users");
             modelBuilder.Entity<Country>().ToTable("Countries");
 
-            modelBuilder.Entity<State>().ToTable("States")           
+            modelBuilder.Entity<State>().ToTable("States")
                     .HasOne(p => p.Country)
                     .WithMany(b => b.States)
                     .HasForeignKey(p => p.CountryId)

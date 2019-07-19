@@ -1,7 +1,9 @@
-﻿using Domain.Entity;
+﻿using ApiSystemServer.Model;
+using Domain.Entity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
+using Services.Validations;
 using System;
 using System.Threading.Tasks;
 
@@ -13,7 +15,7 @@ namespace ApiSystemServer.Controllers
 
     public class UserController : ControllerBase
     {
-        private IUserService _userService;
+        private readonly IUserService _userService;
 
         public UserController(IUserService userService)
         {
@@ -21,19 +23,32 @@ namespace ApiSystemServer.Controllers
         }
 
         [HttpPost]
-        [Route("InserirUsuario")]
+        [Route("CreateUser")]
         [Authorize(Roles = "CRIAR_USUARIO")]
-        public async Task<dynamic> InserirUsuario(User user)
+        public async Task<IActionResult> Create(User user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse("error", ModelState));
+            }
+
             try
             {
-                return _userService.InserirUsuario(user);
+                bool retun = await _userService.CreateUserAsync(user, new ModelStateWrapper(ModelState));
 
-                // return Created("/api/ManagerUsers/ObterUsuarioId", jusuario);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse("error", ModelState));
+                }
+
+                return Ok(new ApiResponse("OK", "Usuário cadastrado com sucesso"));
+
+
             }
             catch (Exception e)
             {
-                return BadRequest("Error " + e.Message);
+                HttpContext.Response.ContentType = "application/json";
+                return StatusCode(500, "Erro interno do servidor" + e.Message);
             }
 
         }

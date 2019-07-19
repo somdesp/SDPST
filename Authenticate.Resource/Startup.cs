@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Infra.Data;
+﻿using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
 using Microsoft.AspNetCore.Builder;
@@ -11,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Services;
 using Services.Helpers;
@@ -73,7 +68,7 @@ namespace Authenticate.Resource
 
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddDbContext<Context>(options => options.UseSqlServer(
+            services.AddDbContext<Context>(options => options.UseMySql(
                 Configuration.GetConnectionString("db_Connection")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);

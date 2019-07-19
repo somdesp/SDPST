@@ -1,0 +1,26 @@
+{
+  "cmsTabIndex": "0",
+  "initCmsUrl": "https://gog-news.kingsgroupgames.com/api/cms/initCms",
+  "activityBaseUrl": "https://gog-events.kingsgroupgames.com",
+  "userInfo": {
+    "lang": "pt",
+    "gameUid": "49724022",
+    "fpid": "136868570",
+    "pkgChannel": "google",
+    "gameId": "2064",
+    "serverId": "372",
+    "gameToken": "706092858b11e2cf944ba51c9f464008"
+  },
+  "tabInfos": [
+    {
+      "title": "Not\u00EDcias",
+      "path": "/news"
+    },
+    {
+      "title": "Recomendado",
+      "path": "/recommend"
+    }
+  ],
+  "cmsBaseUrl": "https://gog-news.kingsgroupgames.com",
+  "shareSendGiftUrl": "https://gog-news.kingsgroupgames.com/api/cms/shareSendGift"
+}

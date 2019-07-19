@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authenticate.Resource", "Au
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0-SDPST.Auth.Reso", "0-SDPST.Auth.Reso", "{E387DE5B-A7EB-46DA-A8C5-C58DA891E5E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiSystemServer", "ApiSystemServer\ApiSystemServer.csproj", "{9D4AFFB9-4D76-492A-B583-0041000CB823}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiSystemServer", "ApiSystemServer\ApiSystemServer.csproj", "{9D4AFFB9-4D76-492A-B583-0041000CB823}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginFacebook", "LoginFacebook\LoginFacebook.csproj", "{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{9D4AFFB9-4D76-492A-B583-0041000CB823}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9D4AFFB9-4D76-492A-B583-0041000CB823}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9D4AFFB9-4D76-492A-B583-0041000CB823}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +65,7 @@ Global
 		{778A5B1E-B0E2-47CC-B9B3-D5F72DDD1B02} = {C3A3755F-52D0-4529-881E-098C52A00F87}
 		{C981D0A3-2F57-4490-BDBC-A55318F6F2DC} = {E387DE5B-A7EB-46DA-A8C5-C58DA891E5E2}
 		{9D4AFFB9-4D76-492A-B583-0041000CB823} = {62B90BEE-F1A2-4521-BCF7-9849A0663922}
+		{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD} = {62B90BEE-F1A2-4521-BCF7-9849A0663922}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5753F93-9FC9-4D83-B740-A75989F242C5}
