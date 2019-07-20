@@ -23,7 +23,7 @@ namespace Infra.Repository
                 await _context.Users.AddAsync(user);
                 await _context.SaveChangesAsync();
             }
-            catch
+            catch (Exception e)
             {
                 return false;
             }

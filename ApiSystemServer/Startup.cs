@@ -1,4 +1,5 @@
-﻿using Infra.Data;
+﻿using AutoMapper;
+using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,8 +17,6 @@ using Services.Helpers;
 using Services.Interface;
 using System;
 using System.Text;
-using AutoMapper;
-
 
 namespace ApiSystemServer
 {
@@ -86,6 +85,7 @@ namespace ApiSystemServer
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddDbContext<Context>(options => options.UseMySql(
                 Configuration.GetConnectionString("db_Connection")));
 
@@ -96,8 +96,10 @@ namespace ApiSystemServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app,
+            IHostingEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

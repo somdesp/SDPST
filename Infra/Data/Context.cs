@@ -9,21 +9,31 @@ namespace Infra.Data
         {
         }
 
+    
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>(u =>
             {
                 u.Property(p => p.Id)
-                    .ValueGeneratedOnAdd().IsRequired();
+                    .ValueGeneratedOnAdd()
+                    .IsRequired();
 
                 u.Property(p => p.Email)
+                    .HasMaxLength(50)
                     .IsRequired();
 
                 u.Property(p => p.Name)
+                    .HasMaxLength(50)
                     .IsRequired();
 
                 u.Property(p => p.Password)
-                     .IsRequired();
+                    .HasMaxLength(500)
+                    .IsRequired();
+
+                u.Property(p => p.DateRegister)
+                    .HasColumnType("DATETIME")
+                    .HasDefaultValueSql("(NOW())");
 
                 u.HasKey(p => p.Id);
 

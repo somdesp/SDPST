@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Services.Interface;
+using System;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Services.Helpers
 {
-    public class Encryption
+    public class Encryption : IEncryption
     {
         public string HashHmac(string secret, string password)
         {
