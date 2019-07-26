@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "0-SDPST.Auth.Reso", "0-SDPS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiSystemServer", "ApiSystemServer\ApiSystemServer.csproj", "{9D4AFFB9-4D76-492A-B583-0041000CB823}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LoginFacebook", "LoginFacebook\LoginFacebook.csproj", "{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoginFacebook", "LoginFacebook\LoginFacebook.csproj", "{6863CF26-E7CD-4A6D-85A4-6E5D733DF7CD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -6,5 +6,7 @@ namespace Infra.Interface
     public interface IAuthRepository
     {
         User AuthUserAsync(User userAuth);
+        Task<User> AuthUserValAsync(User login);
+
     }
 }

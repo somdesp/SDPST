@@ -7,6 +7,9 @@ namespace Services.Interface
     public interface IAuthService
     {
         Task<Token> Authenticate(User login);
+        Task<User> LoginFacebook(string email);
+
+        
 
     }
 }

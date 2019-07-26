@@ -108,5 +108,32 @@ namespace Services
         }
         #endregion
 
+        #region Metodo valida e gera token Facebook
+        public async Task<User> LoginFacebook(string email)
+        {
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    User user = new User
+                        { Email = email };
+
+                    //verifica no banco
+                    return _authRepository.AuthUserValAsync(user);
+
+
+               
+
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                    throw;
+                }
+            });
+        }
+        #endregion
+
     }
 }

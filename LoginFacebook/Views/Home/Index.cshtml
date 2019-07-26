@@ -2,33 +2,33 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 
-    <fb:login-button scope="public_profile,email"
-                     onlogin="checkLoginState();">
-    </fb:login-button>
-    <div id="fb-root"></div>
-    <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js#xfbml=1&version=v3.3&appId=1420621628080924&autoLogAppEvents=1"></script>
-</div>
+  
+        <button onclick="window.location.href = 'https://localhost:44363/api/auth/signin';">Click Here</button>
+
+        <fb:login-button scope="public_profile,email"
+                         onlogin="checkLoginState();">
+        </fb:login-button>
+        <div id="fb-root"></div>
+        <script async defer crossorigin="anonymous" src="https://connect.facebook.net/pt_BR/sdk.js#xfbml=1&version=v3.3&appId=1420621628080924&autoLogAppEvents=1"></script>
+    </div>
 <div class="fb-like"
      data-share="true"
      data-width="450"
      data-show-faces="true">
 </div>
 
-<script>
 
-    FB.getLoginStatus(function (response) {
-        statusChangeCallback(response);
-    });
+<script>
     window.fbAsyncInit = function () {
         FB.init({
-            appId: '{your-app-id}',
+            appId: '1420621628080924',
             cookie: true,
             xfbml: true,
-            version: '{api-version}'
+            version: '1,2'
         });
 
         FB.AppEvents.logPageView();

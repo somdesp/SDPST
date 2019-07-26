@@ -47,5 +47,24 @@ namespace Services
 
             return true;
         }
+
+        public async Task<bool> CreateUserFacebookAsync(object model)
+        {
+            User user;
+
+            try
+            {
+                user = _mapper.Map<User>(model);
+                user.Password = encrypted.HashHmac(user.Email + "OPTIMUS@@ECM", user.Password);
+   
+                await _userRepository.CreateUserAsync(user);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            return true;
+        }
     }
 }

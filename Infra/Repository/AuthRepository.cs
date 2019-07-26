@@ -22,5 +22,12 @@ namespace Infra.Repository
                                 user.Password == userAuth.Password).FirstOrDefault();
         }
 
+
+        public Task<User> AuthUserValAsync(User userAuth)
+        {
+            return _context.Users.SingleOrDefaultAsync(user => user.Email == userAuth.Email.ToLower());
+        }
+
+
     }
 }
