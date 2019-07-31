@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20190720212047_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20190731203909_Inicital")]
+    partial class Inicital
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -70,12 +70,18 @@ namespace Infra.Migrations
 
                     b.Property<DateTime>("DateRegister")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("date")
+                        .HasColumnType("DATETIME")
                         .HasDefaultValueSql("(NOW())");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50);
+
+                    b.Property<long?>("FacebookId");
+
+                    b.Property<string>("FirstName");
+
+                    b.Property<string>("LastName");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -83,7 +89,9 @@ namespace Infra.Migrations
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(100);
+                        .HasMaxLength(500);
+
+                    b.Property<string>("PictureUrl");
 
                     b.HasKey("Id");
 

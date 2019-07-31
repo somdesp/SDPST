@@ -29,6 +29,8 @@ namespace Infra.Repository
             }
             return true;
         }
+
+
         #endregion
 
         #region Verifica se existe usuario
@@ -45,5 +47,10 @@ namespace Infra.Repository
             }
         }
         #endregion
+
+        public Task<User> GetUser(int id)
+        {
+            return _context.Users.FirstOrDefaultAsync(usr => usr.Id == id);
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation.AspNetCore;
 using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
@@ -6,14 +7,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Services;
+using Services.AuthRes;
 using Services.Helpers;
+using Services.IAuthRes;
 using Services.Interface;
 using System;
 using System.Text;
@@ -22,6 +26,8 @@ namespace ApiSystemServer
 {
     public class Startup
     {
+        private SymmetricSecurityKey _signingKey;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -33,45 +39,78 @@ namespace ApiSystemServer
         [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
-       
 
-            var signingConfigurations = new SigningConfigurations();
-            services.AddSingleton(signingConfigurations);
 
-            var tokenConfigurations = new TokenConfigurations();
-            new ConfigureFromConfigurationOptions<TokenConfigurations>(
-                Configuration.GetSection("TokenConfigurations"))
-                    .Configure(tokenConfigurations);
+            // Add framework services.
+            services.AddDbContext<Context>(options => options.UseMySql(
+                Configuration.GetConnectionString("db_Connection")));
+
+            services.AddSingleton<IJwtFactory, JwtFactory>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+
+            services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+
 
             var AppSettings = new AppSettings();
             new ConfigureFromConfigurationOptions<AppSettings>(
                 Configuration.GetSection("AppSettings"))
                     .Configure(AppSettings);
-
-            services.AddSingleton(tokenConfigurations);
             services.AddSingleton(AppSettings);
 
+            var tokenConfigurations = new TokenConfigurations();
+            new ConfigureFromConfigurationOptions<TokenConfigurations>(
+                Configuration.GetSection("TokenConfigurations"))
+                    .Configure(tokenConfigurations);
+            services.AddSingleton(tokenConfigurations);
+
+
+            // Register the ConfigurationBuilder instance of FacebookAuthSettings
+            services.Configure<FacebookAuthSettings>(Configuration.GetSection(nameof(FacebookAuthSettings)));
+
+            services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor>();
+
+            // jwt wire up
+            // Get options from app settings
+            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
+
+            // Configure JwtIssuerOptions
+            _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("iNivDmHLpUA223sqsfhqGbMRdRj1PVkH"));
+            services.Configure<JwtIssuerOptions>(options =>
+            {
+                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
+            });
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
+
+                ValidateAudience = true,
+                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _signingKey,
+
+                RequireExpirationTime = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
 
             services.AddAuthentication(options =>
             {
-                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-            }).AddJwtBearer(bearerOptions =>
+            }).AddJwtBearer(configureOptions =>
             {
-                var keyByteArray = Encoding.ASCII.GetBytes(AppSettings.Secret);
-                var signingKey = new SymmetricSecurityKey(keyByteArray);
-
-                bearerOptions.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    IssuerSigningKey = signingKey,
-                    ValidAudience = tokenConfigurations.Audience,
-                    ValidIssuer = tokenConfigurations.Issuer,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromMinutes(0)
-
-
-                };
+                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
+                configureOptions.TokenValidationParameters = tokenValidationParameters;
+                configureOptions.SaveToken = true;
             });
 
             // Ativa o uso do token como forma de autorizar o acesso
@@ -83,16 +122,21 @@ namespace ApiSystemServer
                     .RequireAuthenticatedUser().Build());
             });
 
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            // add identity
+            //var builder = services.AddIdentityCore<User>(o =>
+            //{
+            //    // configure identity options
+            //    o.Password.RequireDigit = false;
+            //    o.Password.RequireLowercase = false;
+            //    o.Password.RequireUppercase = false;
+            //    o.Password.RequireNonAlphanumeric = false;
+            //    o.Password.RequiredLength = 6;
+            //});
+            //builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
+            //builder.AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
 
-            services.AddDbContext<Context>(options => options.UseMySql(
-                Configuration.GetConnectionString("db_Connection")));
-
-
-            services.AddCors();
             services.AddAutoMapper();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

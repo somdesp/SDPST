@@ -5,6 +5,7 @@ using Infra.Data;
 using Infra.Interface;
 using Infra.Repository;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -28,9 +29,7 @@ namespace Authenticate.Resource
 {
     public class Startup
     {
-        private const string SecretKey = "b73421bcbc99b48bc55d77114f6e6f58"; // todo: get this from somewhere secure
-
-        private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
+        private SymmetricSecurityKey _signingKey;
 
         public Startup(IConfiguration configuration)
         {
@@ -123,7 +122,12 @@ namespace Authenticate.Resource
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IUserService, UserService>();
+
             services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+
+            
 
             var AppSettings = new AppSettings();
             new ConfigureFromConfigurationOptions<AppSettings>(
@@ -148,6 +152,7 @@ namespace Authenticate.Resource
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
 
             // Configure JwtIssuerOptions
+           _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("iNivDmHLpUA223sqsfhqGbMRdRj1PVkH"));
             services.Configure<JwtIssuerOptions>(options =>
             {
                 options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
@@ -183,24 +188,27 @@ namespace Authenticate.Resource
                 configureOptions.SaveToken = true;
             });
 
-            // api user claim policy
-            services.AddAuthorization(options =>
+            // Ativa o uso do token como forma de autorizar o acesso
+            // a recursos deste projeto
+            services.AddAuthorization(auth =>
             {
-                options.AddPolicy("ApiUser", policy => policy.RequireClaim(Services.Helpers.Constants.Strings.JwtClaimIdentifiers.Rol, Services.Helpers.Constants.Strings.JwtClaims.ApiAccess));
+                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser().Build());
             });
 
             // add identity
-            var builder = services.AddIdentityCore<User>(o =>
-            {
-                // configure identity options
-                o.Password.RequireDigit = false;
-                o.Password.RequireLowercase = false;
-                o.Password.RequireUppercase = false;
-                o.Password.RequireNonAlphanumeric = false;
-                o.Password.RequiredLength = 6;
-            });
-            builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
-            builder.AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
+            //var builder = services.AddIdentityCore<User>(o =>
+            //{
+            //    // configure identity options
+            //    o.Password.RequireDigit = false;
+            //    o.Password.RequireLowercase = false;
+            //    o.Password.RequireUppercase = false;
+            //    o.Password.RequireNonAlphanumeric = false;
+            //    o.Password.RequiredLength = 6;
+            //});
+            //builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
+            //builder.AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
 
             services.AddAutoMapper();
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());

@@ -7,5 +7,6 @@ namespace Infra.Interface
     {
         Task<bool> CreateUserAsync(User user);
         Task<bool> ValidUserAsync(User user);
+        Task<User> GetUser(int id);
     }
 }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infra.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Inicital : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,8 +29,12 @@ namespace Infra.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(maxLength: 50, nullable: false),
                     Email = table.Column<string>(maxLength: 50, nullable: false),
-                    Password = table.Column<string>(maxLength: 100, nullable: false),
-                    DateRegister = table.Column<DateTime>(type: "date", nullable: false, defaultValueSql: "(NOW())")
+                    Password = table.Column<string>(maxLength: 500, nullable: false),
+                    DateRegister = table.Column<DateTime>(type: "DATETIME", nullable: false, defaultValueSql: "(NOW())"),
+                    FirstName = table.Column<string>(nullable: true),
+                    LastName = table.Column<string>(nullable: true),
+                    FacebookId = table.Column<long>(nullable: true),
+                    PictureUrl = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

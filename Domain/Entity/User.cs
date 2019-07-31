@@ -3,7 +3,7 @@ using System;
 
 namespace Domain.Entity
 {
-    public class User :   IdentityUser
+    public class User
     {
         public User()
         {

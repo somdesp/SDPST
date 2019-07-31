@@ -116,16 +116,27 @@ namespace Services
 
         public async Task<ClaimsIdentity> GetClaimsIdentity(User user)
         {
-            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
-                return await Task.FromResult<ClaimsIdentity>(null);
+            try
+            {
+                if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+                    return await Task.FromResult<ClaimsIdentity>(null);
 
-            // get the user to verifty
-            var userToVerify = await _authRepository.AuthUserValAsync(user);
+                user.Password = encryption.HashHmac(user.Email + "OPTIMUS@@ECM", user.Password);
 
-            if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
+                // get the user to verifty
+                var userToVerify =  _authRepository.AuthUserAsync(user);
+
+                if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
 
 
-            return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(user.Email, userToVerify.Id.ToString()));
+                return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(user.Email, userToVerify.Id.ToString()));
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
 
 
 

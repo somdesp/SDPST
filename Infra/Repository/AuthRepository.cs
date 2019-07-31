@@ -17,14 +17,18 @@ namespace Infra.Repository
         }
 
         public User AuthUserAsync(User userAuth)
-        {
-            return  _context.Users.Where(user => user.Email == userAuth.Email.ToLower() && 
+        {    
+
+            var users = _context.Users.Where(user => user.Email == userAuth.Email.ToLower() &&
                                 user.Password == userAuth.Password).FirstOrDefault();
+            return users;
         }
 
         public Task<User> AuthUserValAsync(User userAuth)
         {
-            return _context.Users.SingleOrDefaultAsync(user => user.Email == userAuth.Email.ToLower());
+             var users = _context.Users.Where(user => user.Email == userAuth.Email.ToLower() &&
+                                user.Password == userAuth.Password).SingleOrDefaultAsync();
+            return users;
         }
 
 

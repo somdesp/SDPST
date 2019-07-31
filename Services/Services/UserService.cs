@@ -66,5 +66,10 @@ namespace Services
 
             return true;
         }
+
+        public Task<User> GetUser(int id)
+        {
+           return _userRepository.GetUser(id);
+        }
     }
 }

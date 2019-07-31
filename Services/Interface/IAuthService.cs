@@ -10,8 +10,6 @@ namespace Services.Interface
         Task<Token> Authenticate(User login);
         Task<User> LoginFacebook(string email);
         Task<ClaimsIdentity> GetClaimsIdentity(User user);
-
-
-
+       
     }
 }
