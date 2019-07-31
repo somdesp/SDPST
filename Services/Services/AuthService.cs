@@ -3,7 +3,9 @@ using Infra.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Services.AuthRes;
 using Services.Helpers;
+using Services.IAuthRes;
 using Services.Interface;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -17,6 +19,8 @@ namespace Services
     public class AuthService : IAuthService
     {
         #region Declaraçoes
+        private readonly IJwtFactory _jwtFactory;
+        private readonly JwtIssuerOptions _jwtOptions;
         private readonly AppSettings _appSettings;
         private TokenConfigurations _tokenConfigurations;
         public IConfiguration _configuration { get; }
@@ -29,12 +33,14 @@ namespace Services
         public AuthService(AppSettings appSettings,
             IConfiguration configuration,
             TokenConfigurations tokenConfigurations,
-            IAuthRepository authRepository)
+            IAuthRepository authRepository, IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions)
         {
             _tokenConfigurations = tokenConfigurations;
             _configuration = configuration;
             _appSettings = appSettings;
             _authRepository = authRepository;
+            _jwtFactory = jwtFactory;
+            _jwtOptions = jwtOptions.Value;
         }
         #endregion
 
@@ -54,7 +60,7 @@ namespace Services
 
 
                     //Valida se existe usuarios no banco
-                    if (authUsu == null)return null;
+                    if (authUsu == null) return null;
 
                     //Cria as regras do usuario conforme seus acessos
                     ClaimsIdentity identity = new ClaimsIdentity(
@@ -108,6 +114,23 @@ namespace Services
         }
         #endregion
 
+        public async Task<ClaimsIdentity> GetClaimsIdentity(User user)
+        {
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+                return await Task.FromResult<ClaimsIdentity>(null);
+
+            // get the user to verifty
+            var userToVerify = await _authRepository.AuthUserValAsync(user);
+
+            if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
+
+
+            return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(user.Email, userToVerify.Id.ToString()));
+
+
+
+        }
+
         #region Metodo valida e gera token Facebook
         public async Task<User> LoginFacebook(string email)
         {
@@ -117,13 +140,13 @@ namespace Services
                 try
                 {
                     User user = new User
-                        { Email = email };
+                    { Email = email };
 
                     //verifica no banco
                     return _authRepository.AuthUserValAsync(user);
 
 
-               
+
 
                 }
                 catch (Exception ex)

@@ -1,15 +1,12 @@
-﻿using Authenticate.Resource.AuthRes;
-using Authenticate.Resource.Helpers;
-using Authenticate.Resource.IAuthRes;
-using Authenticate.Resource.Models;
+﻿using Authenticate.Resource.Models;
 using Domain.Entity;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Services.AuthRes;
+using Services.Helpers;
+using Services.IAuthRes;
 using Services.Interface;
-using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -37,15 +34,21 @@ namespace Authenticate.Resource.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody]User login)
+        public async Task<IActionResult> Post([FromBody]User login)
         {
-            var token = await _authService.Authenticate(login);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            var identity = await _authService.GetClaimsIdentity(login);
+            if (identity == null)
+            {
+                return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
+            }
 
-            if (token == null)
-                return BadRequest(new { message = "Usuario ou senha incorreto" });
-
-            return Ok(token);
+            var jwt = await Tokens.GenerateJwt(identity, _jwtFactory, login.Email, _jwtOptions, new JsonSerializerSettings { Formatting = Formatting.Indented });
+            return new OkObjectResult(jwt);
         }
 
         public async Task<IActionResult> Facebook([FromBody]FacebookAuthViewModel model)
@@ -83,7 +86,7 @@ namespace Authenticate.Resource.Controllers
 
                 var result = await _userService.CreateUserFacebookAsync(appUser);
 
-                if (!result) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
+                //if (!result) return new BadRequestObjectResult(Errors.AddErrorsToModelState(result, ModelState));
 
             }
 
@@ -98,8 +101,8 @@ namespace Authenticate.Resource.Controllers
             var jwt = await Tokens.GenerateJwt(_jwtFactory.GenerateClaimsIdentity(localUser.Name, localUser.Id.ToString()),
               _jwtFactory, localUser.Name, _jwtOptions, new JsonSerializerSettings { Formatting = Formatting.Indented });
 
-            return new OkObjectResult(jwt);
-        }
+           return new OkObjectResult(jwt);
+        }   
 
     }
 }
