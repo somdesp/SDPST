@@ -24,7 +24,7 @@ namespace ApiSystemServer.Controllers
 
         [HttpPost]
         [Route("CreateUser")]
-        [Authorize(Roles = "CRIAR_USUARIO")]
+        [Authorize(Policy = "ApiUser")]
         public async Task<IActionResult> Create(User user)
         {
             if (!ModelState.IsValid)
