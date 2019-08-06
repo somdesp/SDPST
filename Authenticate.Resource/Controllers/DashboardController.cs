@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Authenticate.Resource.Controllers
 {
-    [Authorize("Bearer")]
+   // [Authorize("Bearer")]
     [Route("api/[controller]/[action]")]
     public class DashboardController : ControllerBase
     {

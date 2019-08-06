@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
-using Domain.Entity;
 using FluentValidation.AspNetCore;
 using Infra.Data;
-using Infra.Interface;
-using Infra.Repository;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -13,17 +10,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Services;
-using Services.AuthRes;
-using Services.Helpers;
-using Services.IAuthRes;
-using Services.Interface;
-using System;
-using System.Text;
-
+using System.Threading.Tasks;
 
 namespace Authenticate.Resource
 {
@@ -111,7 +99,16 @@ namespace Authenticate.Resource
             //});
 
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc();
 
+            services.AddCors(corsOptions =>
+            {
+                corsOptions.AddPolicy("MyPolicy", configurePolicy =>
+                configurePolicy.WithOrigins("http://localhost:4200")
+                                .AllowAnyMethod()
+                                .AllowCredentials()
+                                .AllowAnyHeader());
+            });
 
 
 
@@ -119,100 +116,42 @@ namespace Authenticate.Resource
             // Add framework services.
             services.AddDbContext<Context>(options => options.UseMySql(
                 Configuration.GetConnectionString("db_Connection")));
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                   .AddEntityFrameworkStores<Context>()
+                   .AddDefaultTokenProviders();
 
-            services.AddSingleton<IJwtFactory, JwtFactory>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IUserService, UserService>();
-
-            services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-
-            
-
-            var AppSettings = new AppSettings();
-            new ConfigureFromConfigurationOptions<AppSettings>(
-                Configuration.GetSection("AppSettings"))
-                    .Configure(AppSettings);
-            services.AddSingleton(AppSettings);
-
-            var tokenConfigurations = new TokenConfigurations();
-            new ConfigureFromConfigurationOptions<TokenConfigurations>(
-                Configuration.GetSection("TokenConfigurations"))
-                    .Configure(tokenConfigurations);
-            services.AddSingleton(tokenConfigurations);
-
-
-            // Register the ConfigurationBuilder instance of FacebookAuthSettings
-            services.Configure<FacebookAuthSettings>(Configuration.GetSection(nameof(FacebookAuthSettings)));
-
-            services.TryAddTransient<IHttpContextAccessor, HttpContextAccessor>();
-
-            // jwt wire up
-            // Get options from app settings
-            var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
-
-            // Configure JwtIssuerOptions
-           _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("iNivDmHLpUA223sqsfhqGbMRdRj1PVkH"));
-            services.Configure<JwtIssuerOptions>(options =>
-            {
-                options.Issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
-                options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
-            });
-
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)],
-
-                ValidateAudience = true,
-                ValidAudience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)],
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _signingKey,
-
-                RequireExpirationTime = false,
-                ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
-            };
-
-            services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
-            }).AddJwtBearer(configureOptions =>
-            {
-                configureOptions.ClaimsIssuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
-                configureOptions.TokenValidationParameters = tokenValidationParameters;
-                configureOptions.SaveToken = true;
-            });
+            //services.AddAuthorization(auth =>
+            //{
+            //    auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+            //        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+            //        .RequireAuthenticatedUser().Build());
+            //});
 
             // Ativa o uso do token como forma de autorizar o acesso
             // a recursos deste projeto
-            services.AddAuthorization(auth =>
+            services.AddAuthentication(options =>
             {
-                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser().Build());
-            });
+                options.DefaultSignOutScheme = IdentityConstants.ApplicationScheme;
+            }).AddGoogle("Google", options =>
+                        {
+                            options.CallbackPath = new PathString("/google-callback");
+                            options.ClientId = "153019731182-kntiut8vdhu3mdhpcig3aobeasekri1s.apps.googleusercontent.com";
+                            options.ClientSecret = "HCf3BXB6OVJksUVRjLSi0pcc";
+                            options.Events = new OAuthEvents
+                            {
+                                OnRemoteFailure = (RemoteFailureContext context) =>
+                                {
+                                    context.Response.Redirect("/home/denied");
+                                    context.HandleResponse();
+                                    return Task.CompletedTask;
+                                }
+                            };
+             });
 
-            // add identity
-            //var builder = services.AddIdentityCore<User>(o =>
-            //{
-            //    // configure identity options
-            //    o.Password.RequireDigit = false;
-            //    o.Password.RequireLowercase = false;
-            //    o.Password.RequireUppercase = false;
-            //    o.Password.RequireNonAlphanumeric = false;
-            //    o.Password.RequiredLength = 6;
-            //});
-            //builder = new IdentityBuilder(builder.UserType, typeof(IdentityRole), builder.Services);
-            //builder.AddEntityFrameworkStores<Context>().AddDefaultTokenProviders();
 
             services.AddAutoMapper();
-            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -223,7 +162,11 @@ namespace Authenticate.Resource
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseMvc();
+            app.UseCors("MyPolicy");
+
+            app.UseAuthentication();
+
+            app.UseMvcWithDefaultRoute();
         }
     }
 }

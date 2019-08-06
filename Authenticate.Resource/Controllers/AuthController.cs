@@ -104,5 +104,7 @@ namespace Authenticate.Resource.Controllers
            return new OkObjectResult(jwt);
         }   
 
+
+
     }
 }

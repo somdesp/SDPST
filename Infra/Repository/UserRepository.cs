@@ -3,6 +3,7 @@ using Infra.Data;
 using Infra.Interface;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Infra.Repository
@@ -50,7 +51,8 @@ namespace Infra.Repository
 
         public Task<User> GetUser(int id)
         {
-            return _context.Users.FirstOrDefaultAsync(usr => usr.Id == id);
+
+            return null;//  _context.Users.Where(use => use.Id.ToString() == id.ToString());
         }
     }
 }
