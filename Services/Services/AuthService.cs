@@ -3,8 +3,9 @@ using Infra.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Services.Auth.Service.Interface;
+using Services.Auth.Service.Service;
 using Services.Helpers;
-using Services.Interface;
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -17,6 +18,8 @@ namespace Services
     public class AuthService : IAuthService
     {
         #region Declaraçoes
+        private readonly IJwtFactory _jwtFactory;
+        private readonly JwtIssuerOptions _jwtOptions;
         private readonly AppSettings _appSettings;
         private TokenConfigurations _tokenConfigurations;
         public IConfiguration _configuration { get; }
@@ -29,12 +32,14 @@ namespace Services
         public AuthService(AppSettings appSettings,
             IConfiguration configuration,
             TokenConfigurations tokenConfigurations,
-            IAuthRepository authRepository)
+            IAuthRepository authRepository, IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions)
         {
             _tokenConfigurations = tokenConfigurations;
             _configuration = configuration;
             _appSettings = appSettings;
             _authRepository = authRepository;
+            _jwtFactory = jwtFactory;
+            _jwtOptions = jwtOptions.Value;
         }
         #endregion
 
@@ -54,7 +59,7 @@ namespace Services
 
 
                     //Valida se existe usuarios no banco
-                    if (authUsu == null)return null;
+                    if (authUsu == null) return null;
 
                     //Cria as regras do usuario conforme seus acessos
                     ClaimsIdentity identity = new ClaimsIdentity(
@@ -107,6 +112,34 @@ namespace Services
             });
         }
         #endregion
+
+        public async Task<ClaimsIdentity> GetClaimsIdentity(User user)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password))
+                    return await Task.FromResult<ClaimsIdentity>(null);
+
+                user.Password = encryption.HashHmac(user.Email + "OPTIMUS@@ECM", user.Password);
+
+                // get the user to verifty
+                var userToVerify = _authRepository.AuthUserAsync(user);
+
+                if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
+
+
+                return await Task.FromResult(_jwtFactory.GenerateClaimsIdentity(user.Email, userToVerify.Id.ToString()));
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+
+
+
+        }      
 
     }
 }

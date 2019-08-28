@@ -1,13 +1,11 @@
 ﻿using System;
 
-namespace Domain.Entity
+namespace ApiSystemServer.ViewModel
 {
-    public class User 
+    public class UserViewModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string Password { get; set; }
-        public DateTime DateRegister { get; set; }
     }
 }
