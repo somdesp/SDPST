@@ -41,7 +41,7 @@ namespace Authenticate.Resource.Controllers
             var identity = await _authService.GetClaimsIdentity(login);
             if (identity == null)
             {
-                HttpContext.Response.ContentType = "application/json";
+                //HttpContext.Response.ContentType = "application/json";
                 return BadRequest(Errors.AddErrorToModelState("login_failure", "Invalid username or password.", ModelState));
             }
 

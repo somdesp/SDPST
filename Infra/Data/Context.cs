@@ -34,6 +34,10 @@ namespace Infra.Data
                     .HasColumnType("DATETIME")
                     .HasDefaultValueSql("(NOW())");
 
+                u.Property(p => p.Status)
+                    .HasColumnType("BIT")
+                    .HasDefaultValueSql("(1)");
+
                 u.HasKey(p => p.Id);
 
                 u.ToTable("Users");
@@ -59,10 +63,10 @@ namespace Infra.Data
                     .HasConstraintName("ForeignKey_Country_States");
 
             modelBuilder.Entity<City>().ToTable("Cities")
-                .HasOne(p => p.State)
-                .WithMany(b => b.Cities)
-                .HasForeignKey(p => p.StateId)
-                .HasConstraintName("ForeignKey_States_City");
+                    .HasOne(p => p.State)
+                    .WithMany(b => b.Cities)
+                    .HasForeignKey(p => p.StateId)
+                    .HasConstraintName("ForeignKey_States_City");
         }
 
         public DbSet<User> Users { get; set; }
