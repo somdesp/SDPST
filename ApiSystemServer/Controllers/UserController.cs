@@ -33,9 +33,9 @@ namespace ApiSystemServer.Controllers
 
         #region InserirUsuario
         [HttpPost]
-        [Route("CreateUser")]
-        [Authorize(Roles = "CRIAR_USUARIO")]
-        public async Task<IActionResult> Post(User user)
+        [Route("register")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Put(User user)
         {
             HttpContext.Response.ContentType = "application/json";
 
