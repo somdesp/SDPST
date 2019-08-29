@@ -20,6 +20,7 @@ using Services.Auth.Service.Interface;
 using Services.Auth.Service.Service;
 using Services.Helpers;
 using Services.Interface;
+using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Text;
 
@@ -41,10 +42,24 @@ namespace ApiSystemServer
         public void ConfigureServices(IServiceCollection services)
         {
 
-
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1",
+                    new Info
+                    {
+                        Title = "Api Estudos para todos nós",
+                        Version = "v1.0",
+                        Description = "Exemplo de API REST criada com o ASP.NET Core",
+                        Contact = new Contact
+                        {
+                            Name = "Anderson Satelos",
+                            Url = "https://github.com/somdesp"
+                        }
+                    });
+            });
             // Add framework services.
             services.AddDbContext<Context>(options => options.UseMySql(
-                Configuration.GetConnectionString("db_Connection")));
+            Configuration.GetConnectionString("db_Connection")));
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
             services.AddScoped<IAuthService, AuthService>();
@@ -137,6 +152,13 @@ namespace ApiSystemServer
             }
 
             app.UseMvc();
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json",
+                    "Api Estudos para todos nós");
+            });
         }
     }
 }

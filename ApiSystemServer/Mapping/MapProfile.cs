@@ -1,6 +1,6 @@
-﻿using ApiSystemServer.ViewModel;
-using AutoMapper;
+﻿using AutoMapper;
 using Domain.Entity;
+using Domain.ViewModel;
 
 namespace ApiSystemServer.Mapping
 {
@@ -8,8 +8,8 @@ namespace ApiSystemServer.Mapping
     {
         public MapProfile()
         {
-            CreateMap<UserViewModel, User>(MemberList.Source);
-            CreateMap<UserViewModel, User>().ReverseMap();
+            CreateMap<User,UserViewModel > (MemberList.Destination);
+           // CreateMap<UserViewModel, User>().ReverseMap();
 
         }
     }

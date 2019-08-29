@@ -1,11 +1,10 @@
-﻿using Domain.Entity;
+﻿using Domain.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Services.Auth.Service.Interface;
 using Services.Auth.Service.Service;
 using Services.Helpers;
-using Services.Interface;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -31,7 +30,7 @@ namespace Authenticate.Resource.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Post([FromBody]User login)
+        public async Task<IActionResult> Post([FromBody]LoginViewModel login)
         {
             if (!ModelState.IsValid)
             {

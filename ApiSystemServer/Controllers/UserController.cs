@@ -1,7 +1,7 @@
 ﻿using ApiSystemServer.Model;
-using ApiSystemServer.ViewModel;
 using AutoMapper;
 using Domain.Entity;
+using Domain.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
@@ -35,7 +35,7 @@ namespace ApiSystemServer.Controllers
         [HttpPost]
         [Route("CreateUser")]
         [Authorize(Roles = "CRIAR_USUARIO")]
-        public async Task<IActionResult> Create(User user)
+        public async Task<IActionResult> Post(User user)
         {
             HttpContext.Response.ContentType = "application/json";
 
@@ -66,9 +66,9 @@ namespace ApiSystemServer.Controllers
         #endregion
 
         #region Retornar Usuario por Id
-        [HttpGet]
-        [Route("Get")]
+        [HttpGet("{id}", Name = "GetUser")]
         [Authorize(Roles = "CRIAR_USUARIO")]
+
         public async Task<IActionResult> Get(int id)
         {
             HttpContext.Response.ContentType = "application/json";
@@ -95,7 +95,6 @@ namespace ApiSystemServer.Controllers
 
         #region Retorna todos os Usuarios
         [HttpGet]
-        [Route("GetAll")]
         [Authorize(Roles = "CRIAR_USUARIO")]
         public async Task<IActionResult> Get()
         {
@@ -123,9 +122,9 @@ namespace ApiSystemServer.Controllers
 
         #region Editar Usuario
         [HttpPost]
-        [Route("EditUser")]
+        [Route("Edit")]
         [Authorize(Roles = "CRIAR_USUARIO")]
-        public async Task<IActionResult> EditUser(User user)
+        public async Task<IActionResult> Edit(User user)
         {
             HttpContext.Response.ContentType = "application/json";
             UserViewModel userGet;
@@ -147,7 +146,7 @@ namespace ApiSystemServer.Controllers
             }
 
         }
-        #endregion
+        #endregion      
 
     }
 }

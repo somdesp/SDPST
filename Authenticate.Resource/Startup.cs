@@ -32,6 +32,8 @@ namespace Authenticate.Resource
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var contentRoot = configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
+
         }
 
         public IConfiguration Configuration { get; }

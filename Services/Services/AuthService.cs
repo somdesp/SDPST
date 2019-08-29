@@ -1,4 +1,5 @@
 ﻿using Domain.Entity;
+using Domain.ViewModel;
 using Infra.Interface;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -44,7 +45,7 @@ namespace Services
         #endregion
 
         #region Metodo valida e gera token
-        public async Task<Token> Authenticate(User user)
+        public async Task<Token> Authenticate(LoginViewModel user)
         {
 
             return await Task.Run(() =>
@@ -113,7 +114,7 @@ namespace Services
         }
         #endregion
 
-        public async Task<ClaimsIdentity> GetClaimsIdentity(User user)
+        public async Task<ClaimsIdentity> GetClaimsIdentity(LoginViewModel user)
         {
             try
             {

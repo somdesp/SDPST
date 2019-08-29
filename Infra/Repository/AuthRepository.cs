@@ -1,4 +1,5 @@
 ﻿using Domain.Entity;
+using Domain.ViewModel;
 using Infra.Data;
 using Infra.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +17,7 @@ namespace Infra.Repository
             _context = context;
         }
 
-        public User AuthUserAsync(User userAuth)
+        public User AuthUserAsync(LoginViewModel userAuth)
         {
             return  _context.Users.Where(user => user.Email == userAuth.Email.ToLower() && 
                                 user.Password == userAuth.Password).FirstOrDefault();
