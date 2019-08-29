@@ -10,7 +10,10 @@ namespace Infra.Interface
         Task<bool> CreateUserAsync(User user);
         Task<bool> ValidUserAsync(User user);
         Task<IEnumerable<User>> GetUserAsync(int id, IValidationDictionary validation);
+        Task<User> EditUserAsync(User user, IValidationDictionary validation);
+
 
         
+
     }
 }

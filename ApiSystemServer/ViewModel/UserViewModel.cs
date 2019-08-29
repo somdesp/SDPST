@@ -7,7 +7,7 @@ namespace ApiSystemServer.ViewModel
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
-        public string status { get; set; }
+        public bool Status { get; set; }
 
     }
 }

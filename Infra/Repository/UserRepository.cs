@@ -12,7 +12,7 @@ namespace Infra.Repository
 {
     public class UserRepository : IUserRepository
     {
-        private Context _context;
+        private readonly Context _context;
         public UserRepository(Context context)
         {
             _context = context;
@@ -32,8 +32,6 @@ namespace Infra.Repository
             }
             return true;
         }
-
-
         #endregion
 
         #region Verifica se existe usuario
@@ -42,7 +40,7 @@ namespace Infra.Repository
 
             try
             {
-                return await _context.Users.AnyAsync(usr => usr.Email == user.Email);
+                return await _context.Users.AnyAsync(usr => usr.Email == user.Email && usr.Id != user.Id);
             }
             catch
             {
@@ -51,6 +49,7 @@ namespace Infra.Repository
         }
         #endregion
 
+        #region Retorna Usuarios    
         public async Task<IEnumerable<User>> GetUserAsync(int id, IValidationDictionary validation)
         {
 
@@ -81,7 +80,36 @@ namespace Infra.Repository
                 }
             });
         }
+        #endregion
 
+        #region AtualizaUsuario
+        public async Task<User> EditUserAsync(User userEdit, IValidationDictionary validation)
+        {
+            int returnValue = 0;
+            User user;
 
+            try
+            {
+                user = await _context.Users.Where(usu => usu.Id == userEdit.Id).SingleAsync();
+
+                user.Name = userEdit.Name;
+                user.Status = userEdit.Status;
+                user.Email = userEdit.Email;
+                if (userEdit.Password != null)
+                {
+                    user.Password = userEdit.Password;
+                }
+
+                returnValue = await _context.SaveChangesAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+        }
+
+        #endregion
     }
 }

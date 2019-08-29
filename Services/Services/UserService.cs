@@ -53,5 +53,39 @@ namespace Services
         {
             return _userRepository.GetUserAsync(id, validation);
         }
+
+        public async Task<User> EditUserAsync(User user, IValidationDictionary validation)
+        {
+            try
+            {
+                if (!await ValidUserAsync(user, validation))
+                {
+                    return null;
+                }
+                if (user.Password != null)
+                {
+                    user.Password = encrypted.HashHmac(user.Email + "OPTIMUS@@ECM", user.Password);
+                }
+
+                return await _userRepository.EditUserAsync(user, validation);
+            }
+            catch (Exception)
+            {
+                return null;
+                throw;
+            }
+
+        }
+
+        public async Task<bool> ValidUserAsync(User user, IValidationDictionary validation)
+        {            
+            //verifica se usuario existe
+            if (await _userRepository.ValidUserAsync(user))
+            {
+                validation.AddError("errors", "Usuário já existe");
+                return false;
+            }
+            return true;
+        }
     }
 }
