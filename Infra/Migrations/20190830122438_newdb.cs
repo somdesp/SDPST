@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infra.Migrations
 {
-    public partial class InitialCatalog : Migration
+    public partial class newdb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -30,7 +30,8 @@ namespace Infra.Migrations
                     Name = table.Column<string>(maxLength: 50, nullable: false),
                     Email = table.Column<string>(maxLength: 50, nullable: false),
                     Password = table.Column<string>(maxLength: 500, nullable: false),
-                    DateRegister = table.Column<DateTime>(type: "DATETIME", nullable: false, defaultValueSql: "(NOW())")
+                    DateRegister = table.Column<DateTime>(type: "DATETIME", nullable: false, defaultValueSql: "(NOW())"),
+                    Status = table.Column<bool>(type: "BIT", nullable: false, defaultValueSql: "(1)")
                 },
                 constraints: table =>
                 {

@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20190828171813_InitialCatalog")]
-    partial class InitialCatalog
+    [Migration("20190830122438_newdb")]
+    partial class newdb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,6 +84,11 @@ namespace Infra.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(500);
+
+                    b.Property<bool>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("BIT")
+                        .HasDefaultValueSql("(1)");
 
                     b.HasKey("Id");
 

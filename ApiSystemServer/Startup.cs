@@ -139,12 +139,18 @@ namespace ApiSystemServer
 
             services.AddAutoMapper(typeof(Startup));
             services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app,
             IHostingEnvironment env)
         {
+            app.UseCors(builder => builder.WithOrigins("http://localhost:8100").AllowAnyHeader());
+
 
             if (env.IsDevelopment())
             {

@@ -3,6 +3,7 @@ using AutoMapper;
 using Domain.Entity;
 using Domain.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interface;
 using Services.Validations;
@@ -35,6 +36,7 @@ namespace ApiSystemServer.Controllers
         [HttpPost]
         [Route("register")]
         [AllowAnonymous]
+        [EnableCors("AllowOrigin")]
         public async Task<IActionResult> Put(User user)
         {
             HttpContext.Response.ContentType = "application/json";
