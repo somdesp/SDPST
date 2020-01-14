@@ -7,19 +7,19 @@ namespace ApiSystemServer.Model
     public class ApiResponse
     {
         public IEnumerable<ModelError> errors;
-        public string status { get; set; }
-        public string successMessage { get; set; }
+        public string Status { get; set; }
+        public string SuccessMessage { get; set; }
 
         public ApiResponse(string status, ModelStateDictionary modelState)
         {
             this.errors = modelState.Values.SelectMany(e => e.Errors);
-            this.status = status;
+            this.Status = status;
         }
 
         public ApiResponse(string status, string successMessage)
         {
-            this.successMessage = successMessage;
-            this.status = status;
+            this.SuccessMessage = successMessage;
+            this.Status = status;
         }
     }
 }

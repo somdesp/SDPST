@@ -23,6 +23,8 @@ using Services.Interface;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Text;
+using SDPST.Infrastructure.CrossCutting.IoC;
+
 
 namespace ApiSystemServer
 {
@@ -41,6 +43,7 @@ namespace ApiSystemServer
         [Obsolete]
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCustomService(Configuration);
 
             services.AddSwaggerGen(c =>
             {
@@ -61,12 +64,7 @@ namespace ApiSystemServer
             services.AddDbContext<Context>(options => options.UseMySql(
             Configuration.GetConnectionString("db_Connection")));
 
-            services.AddSingleton<IJwtFactory, JwtFactory>();
-            services.AddScoped<IAuthService, AuthService>();
-            services.AddScoped<IUserService, UserService>();
 
-            services.AddScoped<IAuthRepository, AuthRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
 
 
 
